@@ -20,6 +20,11 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
     </style>
 </head>
 <body>
@@ -30,19 +35,28 @@
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
+        <button id="stopStatusBtn">Stop</button>
         <p id="status">Status will be displayed here</p>
+        <p id="averageAvailability">Average Availability: N/A</p>
         <p class="created-by">Created by Saketh</p>
     </div>
 
     <script>
         const statusElement = document.getElementById('status');
+        const averageAvailabilityElement = document.getElementById('averageAvailability');
         const webAppUrlInput = document.getElementById('webAppUrl');
         const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
-        checkStatusBtn.addEventListener('click', fetchStatus);
+        let intervalId;
+        let totalOnlineRuns = 0;
+        let totalRuns = 0;
 
-        function fetchStatus() {
+        checkStatusBtn.addEventListener('click', startStatusCheck);
+        stopStatusBtn.addEventListener('click', stopStatusCheck);
+
+        function startStatusCheck() {
             const webAppUrl = webAppUrlInput.value;
             const intervalMinutes = parseInt(intervalInput.value);
 
@@ -51,12 +65,17 @@
                 return;
             }
 
-            const intervalMilliseconds = intervalMinutes * 60000; // Convert to milliseconds
+            const intervalMilliseconds = intervalMinutes * 60000;
 
             getStatus(webAppUrl);
-            setInterval(() => {
+            intervalId = setInterval(() => {
                 getStatus(webAppUrl);
             }, intervalMilliseconds);
+        }
+
+        function stopStatusCheck() {
+            clearInterval(intervalId);
+            statusElement.textContent = 'Status updates stopped';
         }
 
         async function getStatus(webAppUrl) {
@@ -66,6 +85,18 @@
                 const endTime = performance.now();
                 const status = response.ok ? 'Online' : 'Offline';
                 const responseTime = endTime - startTime;
+
+                if (response.ok) {
+                    totalOnlineRuns++;
+                }
+                totalRuns++;
+
+                const availabilityPercentage = (totalOnlineRuns / totalRuns) * 100;
+                const averageAvailabilityText = isNaN(availabilityPercentage)
+                    ? 'Average Availability: N/A'
+                    : `Average Availability: ${availabilityPercentage.toFixed(2)}%`;
+
+                averageAvailabilityElement.textContent = averageAvailabilityText;
 
                 if (response.ok) {
                     statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
