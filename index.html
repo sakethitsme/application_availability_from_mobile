@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App Status</title>
+    <style>
+        body {
+            background-color: #3498db;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web App Availability Status</h1>
+        <p>Enter your web app URL:</p>
+        <input type="text" id="webAppUrl" placeholder="https://your-web-app.com">
+        <p>Enter status check interval (minutes):</p>
+        <input type="number" id="intervalInput" placeholder="1">
+        <button id="checkStatusBtn">Check Status</button>
+        <p id="status">Status will be displayed here</p>
+        <p class="created-by">Created by Saketh</p>
+    </div>
+
+    <script>
+        const statusElement = document.getElementById('status');
+        const webAppUrlInput = document.getElementById('webAppUrl');
+        const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const intervalInput = document.getElementById('intervalInput');
+
+        checkStatusBtn.addEventListener('click', fetchStatus);
+
+        function fetchStatus() {
+            const webAppUrl = webAppUrlInput.value;
+            const intervalMinutes = parseInt(intervalInput.value);
+
+            if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
+                statusElement.textContent = 'Please enter a valid interval';
+                return;
+            }
+
+            const intervalMilliseconds = intervalMinutes * 60000; // Convert to milliseconds
+
+            getStatus(webAppUrl);
+            setInterval(() => {
+                getStatus(webAppUrl);
+            }, intervalMilliseconds);
+        }
+
+        async function getStatus(webAppUrl) {
+            try {
+                const startTime = performance.now();
+                const response = await fetch(webAppUrl);
+                const endTime = performance.now();
+                const status = response.ok ? 'Online' : 'Offline';
+                const responseTime = endTime - startTime;
+
+                if (response.ok) {
+                    statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
+                } else {
+                    statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
+                }
+            } catch (error) {
+                statusElement.textContent = 'Error fetching status';
+                console.error('Error fetching status:', error);
+            }
+        }
+    </script>
+</body>
+</html>
