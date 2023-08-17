@@ -38,12 +38,14 @@
         <button id="stopStatusBtn">Stop</button>
         <p id="status">Status will be displayed here</p>
         <p id="averageAvailability">Average Availability: N/A</p>
+        <p id="availabilitySince">Availability calculated since: N/A</p>
         <p class="created-by">Created by Saketh</p>
     </div>
 
     <script>
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
+        const availabilitySinceElement = document.getElementById('availabilitySince');
         const webAppUrlInput = document.getElementById('webAppUrl');
         const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
@@ -52,6 +54,7 @@
         let intervalId;
         let totalOnlineRuns = 0;
         let totalRuns = 0;
+        let availabilitySinceTime = null;
 
         checkStatusBtn.addEventListener('click', startStatusCheck);
         stopStatusBtn.addEventListener('click', stopStatusCheck);
@@ -67,6 +70,11 @@
 
             const intervalMilliseconds = intervalMinutes * 60000;
 
+            if (!availabilitySinceTime) {
+                availabilitySinceTime = new Date();
+                updateAvailabilitySince();
+            }
+
             getStatus(webAppUrl);
             intervalId = setInterval(() => {
                 getStatus(webAppUrl);
@@ -76,6 +84,13 @@
         function stopStatusCheck() {
             clearInterval(intervalId);
             statusElement.textContent = 'Status updates stopped';
+        }
+
+        function updateAvailabilitySince() {
+            if (availabilitySinceTime) {
+                const formattedTime = moment(availabilitySinceTime).format('DD MMMM, YYYY HH:mm:ss');
+                availabilitySinceElement.textContent = `Availability calculated since: ${formattedTime}`;
+            }
         }
 
         async function getStatus(webAppUrl) {
