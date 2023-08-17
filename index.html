@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web App Status</title>
+    <title>Web App Availability Status</title>
     <style>
         body {
             background-color: #3498db;
@@ -80,8 +80,10 @@
 
         async function getStatus(webAppUrl) {
             try {
+                // Use the proxy URL for making requests to external APIs
+                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(webAppUrl);
                 const startTime = performance.now();
-                const response = await fetch(webAppUrl);
+                const response = await fetch(proxyUrl);
                 const endTime = performance.now();
                 const status = response.ok ? 'Online' : 'Offline';
                 const responseTime = endTime - startTime;
