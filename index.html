@@ -132,7 +132,7 @@
             if ('Notification' in window && Notification.permission === 'granted') {
                 const notification = new Notification('Status Update Error', {
                     body: 'There was an error fetching the status. Check the console for details.',
-                    icon: '/api/error.png' // Replace with the path to your notification icon
+                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
                 });
             }
         }
