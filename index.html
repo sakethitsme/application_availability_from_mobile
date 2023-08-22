@@ -44,6 +44,10 @@
     </div>
 
     <script>
+    // Request notification permission
+    if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission();
+    }
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
@@ -124,6 +128,12 @@
             } catch (error) {
                 statusElement.textContent = 'Error fetching status';
                 console.error('Error fetching status:', error);
+// Show a notification on error
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('Status Update Error', {
+                    body: 'There was an error fetching the status. Check the console for details.',
+                    icon: '/api/error.png' // Replace with the path to your notification icon
+                });
             }
         }
     </script>
