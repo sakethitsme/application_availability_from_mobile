@@ -46,7 +46,9 @@
           <option value="webApp">Web App URL</option>
           <option value="api">API URL</option>
       </select>
-      <input type="text" id="urlInput" placeholder="Enter URL">
+      <div id="urlInputContainer" style="display: none;">
+        <input type="text" id="urlInput" placeholder="Enter URL">
+      </div>
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -66,22 +68,25 @@
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
-        const webAppUrlInput = document.getElementById('webAppUrl');
-const apiUrlInput = document.getElementById('apiUrl'); // Add this line for the API URL input
+        const urlInputContainer = document.getElementById('urlInputContainer'); // Updated this line
+const urlInput = document.getElementById('urlInput'); // Updated this line
 const checkTypeSelect = document.getElementById('checkType'); // Add this line for the check type dropdown        
 const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
+
 // event listener
 checkTypeSelect.addEventListener('change', () => {
     const checkType = checkTypeSelect.value;
     if (checkType === 'webApp') {
-        webAppUrlInput.style.display = 'block';
-        apiUrlInput.style.display = 'none';
+        webAppUrlInput.style.display = 'block'; // Show the Web App URL input
+        apiUrlInput.style.display = 'none'; // Hide the API URL input
+        urlInputContainer.style.display = 'none'; // Hide the URL input container
     } else if (checkType === 'api') {
-        apiUrlInput.style.display = 'block';
-        webAppUrlInput.style.display = 'none';
+        apiUrlInput.style.display = 'block'; // Show the API URL input
+        webAppUrlInput.style.display = 'none'; // Hide the Web App URL input
+        urlInputContainer.style.display = 'block'; // Show the URL input container
     }
 });
 
