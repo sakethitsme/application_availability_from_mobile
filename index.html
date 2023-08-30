@@ -41,11 +41,12 @@
     <div class="container">
         <h1>Sentinel</h1>
         <p>Enter your URL:</p>
-       <label for="checkType">Select Check Type:</label>
-       <select id="checkType">
-          <option value="webApp">Web App URL</option>
-          <option value="api">API URL</option>
-      </select>
+<label for="checkType">Select Check Type:</label>
+<select id="checkType">
+    <option value="" disabled selected>Select Check Type</option>
+    <option value="webApp">Web App URL</option>
+    <option value="api">API URL</option>
+</select>
       <div id="urlInputContainer" style="display: none;">
         <input type="text" id="urlInput" placeholder="Enter URL">
       </div>
