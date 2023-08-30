@@ -77,16 +77,18 @@ const checkStatusBtn = document.getElementById('checkStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
 
-// event listener
 checkTypeSelect.addEventListener('change', () => {
     const checkType = checkTypeSelect.value;
     if (checkType === 'webApp') {
         urlInputContainer.style.display = 'none'; // Hide the URL input container
+        apiUrlInput.style.display = 'none'; // Hide the API URL input
+        webAppUrlInput.style.display = 'block'; // Show the Web App URL input
     } else if (checkType === 'api') {
         urlInputContainer.style.display = 'block'; // Show the URL input container
+        apiUrlInput.style.display = 'block'; // Show the API URL input
+        webAppUrlInput.style.display = 'none'; // Hide the Web App URL input
     }
 });
-
 
         let intervalId;
         let totalOnlineRuns = 0;
