@@ -40,8 +40,13 @@
 <body>
     <div class="container">
         <h1>Sentinel</h1>
-        <p>Enter your web app URL:</p>
-        <input type="text" id="webAppUrl" placeholder="https://your-web-app.com">
+        <p>Enter your URL:</p>
+       <label for="checkType">Select Check Type:</label>
+       <select id="checkType">
+          <option value="webApp">Web App URL</option>
+          <option value="api">API URL</option>
+      </select>
+      <input type="text" id="urlInput" placeholder="Enter URL">
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -62,9 +67,23 @@
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
         const webAppUrlInput = document.getElementById('webAppUrl');
-        const checkStatusBtn = document.getElementById('checkStatusBtn');
+const apiUrlInput = document.getElementById('apiUrl'); // Add this line for the API URL input
+const checkTypeSelect = document.getElementById('checkType'); // Add this line for the check type dropdown        
+const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
+
+// event listener
+checkTypeSelect.addEventListener('change', () => {
+    const checkType = checkTypeSelect.value;
+    if (checkType === 'webApp') {
+        webAppUrlInput.style.display = 'block';
+        apiUrlInput.style.display = 'none';
+    } else if (checkType === 'api') {
+        apiUrlInput.style.display = 'block';
+        webAppUrlInput.style.display = 'none';
+    }
+});
 
         let intervalId;
         let totalOnlineRuns = 0;
@@ -75,7 +94,8 @@
         stopStatusBtn.addEventListener('click', stopStatusCheck);
 
         function startStatusCheck() {
-            const webAppUrl = webAppUrlInput.value;
+         const checkType = checkTypeSelect.value;
+    const url = checkType === 'webApp' ? webAppUrlInput.value : apiUrlInput.value;
             const intervalMinutes = parseInt(intervalInput.value);
 
             if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
@@ -108,10 +128,10 @@
             }
         }
 
-        async function getStatus(webAppUrl) {
+        async function getStatus(url) {
             try {
                 // Use the proxy URL for making requests to external APIs
-                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(webAppUrl);
+                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(url);
                 const startTime = performance.now();
                 const response = await fetch(proxyUrl);
                 const endTime = performance.now();
