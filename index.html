@@ -81,15 +81,12 @@ const checkStatusBtn = document.getElementById('checkStatusBtn');
 checkTypeSelect.addEventListener('change', () => {
     const checkType = checkTypeSelect.value;
     if (checkType === 'webApp') {
-        webAppUrlInput.style.display = 'block'; // Show the Web App URL input
-        apiUrlInput.style.display = 'none'; // Hide the API URL input
         urlInputContainer.style.display = 'none'; // Hide the URL input container
     } else if (checkType === 'api') {
-        apiUrlInput.style.display = 'block'; // Show the API URL input
-        webAppUrlInput.style.display = 'none'; // Hide the Web App URL input
         urlInputContainer.style.display = 'block'; // Show the URL input container
     }
 });
+
 
         let intervalId;
         let totalOnlineRuns = 0;
