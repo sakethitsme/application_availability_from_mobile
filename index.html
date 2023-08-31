@@ -114,63 +114,66 @@ getStatus(apiUrl); // Monitor the API as well
             }
         }
 
-        async function getStatus(urlOrIp) {
-            try {
-                // Use the proxy URL for making requests to external APIs
-                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
-                const startTime = performance.now();
-                const response = await fetch(proxyUrl);
-// Handle response differently based on whether it's an API or a URL/IP
+async function getStatus(urlOrIp) {
+    let responseTime; // Declare responseTime outside the try block
+    try {
+        // Use the proxy URL for making requests to external APIs
+        const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
+        const startTime = performance.now();
+        const response = await fetch(proxyUrl);
+
+        // Handle response differently based on whether it's an API or a URL/IP
         if (urlOrIp.includes('api')) { // Check if the input contains 'api' to identify API endpoints
             const data = await response.json(); // Assuming API response is JSON
             // Process API response data, update UI, etc.
-        } else {                
-const endTime = performance.now();
-                const status = response.ok ? 'Online' : 'Offline';
-                const responseTime = endTime - startTime;
- }
-                if (response.ok) {
-                    totalOnlineRuns++;
-                }
-                totalRuns++;
+        } else {
+            const endTime = performance.now();
+            const status = response.ok ? 'Online' : 'Offline';
+            responseTime = endTime - startTime; // Update responseTime value
 
-                const availabilityPercentage = (totalOnlineRuns / totalRuns) * 100;
-                const averageAvailabilityText = isNaN(availabilityPercentage)
-                    ? 'Average Availability: N/A'
-                    : `Average Availability: ${availabilityPercentage.toFixed(2)}%`;
+            if (response.ok) {
+                totalOnlineRuns++;
+            }
+            totalRuns++;
 
-                averageAvailabilityElement.textContent = averageAvailabilityText;
+            const availabilityPercentage = (totalOnlineRuns / totalRuns) * 100;
+            const averageAvailabilityText = isNaN(availabilityPercentage)
+                ? 'Average Availability: N/A'
+                : `Average Availability: ${availabilityPercentage.toFixed(2)}%`;
 
-                if (response.ok) {
-                    statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
-                } else {
-                    statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
-                }
-} catch (error) {
-    if (urlOrIp.includes('api')) {
-        // Handle API error differently
-        statusElement.textContent = 'Error fetching API status';
-        console.error('Error fetching API status:', error);
-        // Show a notification on error
-        if ('Notification' in window && Notification.permission === 'granted') {
-            const notification = new Notification('API Status Update Error', {
-                body: 'There was an error fetching the API status. Check the console for details.',
-                icon: '/node_modules/error.png' // Replace with the path to your notification icon
-            });
+            averageAvailabilityElement.textContent = averageAvailabilityText;
+
+            if (response.ok) {
+                statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
+            } else {
+                statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
+            }
         }
-    } else {
-        // Handle URL/IP error differently
-        statusElement.textContent = 'Error fetching status';
-        console.error('Error fetching status:', error);
-        // Show a notification on error
-        if ('Notification' in window && Notification.permission === 'granted') {
-            const notification = new Notification('Status Update Error', {
-                body: 'There was an error fetching the status. Check the console for details.',
-                icon: '/node_modules/error.png' // Replace with the path to your notification icon
-            });
+    } catch (error) {
+        if (urlOrIp.includes('api')) {
+            // Handle API error differently
+            statusElement.textContent = 'Error fetching API status';
+            console.error('Error fetching API status:', error);
+            // Show a notification on error
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('API Status Update Error', {
+                    body: 'There was an error fetching the API status. Check the console for details.',
+                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
+                });
+            }
+        } else {
+            // Handle URL/IP error differently
+            statusElement.textContent = 'Error fetching status';
+            console.error('Error fetching status:', error);
+            // Show a notification on error
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('Status Update Error', {
+                    body: 'There was an error fetching the status. Check the console for details.',
+                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
+                });
+            }
         }
     }
-}
 }
     </script>
 </body>
