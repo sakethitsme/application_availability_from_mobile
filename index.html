@@ -40,8 +40,8 @@
 <body>
     <div class="container">
         <h1>Sentinel</h1>
-        <p>Enter your web app URL:</p>
-        <input type="text" id="webAppUrl" placeholder="https://your-web-app.com">
+        <p>Enter your web app URL or IP:</p>
+        <input type="text" id="urlOrIpInput" placeholder="https://your-web-app.com or IP address">
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -61,7 +61,7 @@
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
-        const webAppUrlInput = document.getElementById('webAppUrl');
+const urlOrIpInput = document.getElementById('urlOrIpInput');
         const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
@@ -75,7 +75,7 @@
         stopStatusBtn.addEventListener('click', stopStatusCheck);
 
         function startStatusCheck() {
-            const webAppUrl = webAppUrlInput.value;
+    const urlOrIp = urlOrIpInput.value;
             const intervalMinutes = parseInt(intervalInput.value);
 
             if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
@@ -90,9 +90,9 @@
                 updateAvailabilitySince();
             }
 
-            getStatus(webAppUrl);
-            intervalId = setInterval(() => {
-                getStatus(webAppUrl);
+            getStatus(urlOrIp);
+    intervalId = setInterval(() => {
+        getStatus(urlOrIp);
             }, intervalMilliseconds);
         }
 
@@ -108,10 +108,10 @@
             }
         }
 
-        async function getStatus(webAppUrl) {
+        async function getStatus(urlOrIp) {
             try {
                 // Use the proxy URL for making requests to external APIs
-                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(webAppUrl);
+                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
                 const startTime = performance.now();
                 const response = await fetch(proxyUrl);
                 const endTime = performance.now();
