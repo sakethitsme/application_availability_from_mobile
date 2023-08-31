@@ -41,12 +41,7 @@
     <div class="container">
         <h1>Sentinel</h1>
  
-<label for="checkType">Select Check Type:</label>
-<select id="checkType">
-    <option value="" disabled selected>Select Check Type</option>
-    <option value="webApp">Web App URL</option>
-    <option value="api">API URL</option>
-</select>
+
         <p>Enter your URL:</p>
 <input type="text" id="urlInput" placeholder="Enter URL">
         <p>Enter status check interval (minutes):</p>
@@ -68,27 +63,12 @@
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
-       const webAppUrlInput = document.getElementById('webAppUrl');
-const apiUrlInput = document.getElementById('apiUrl'); 
-const checkTypeSelect = document.getElementById('checkType'); // Add this line for the check type dropdown        
+const urlInput = document.getElementById('urlInput');       
 const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
 
-checkTypeSelect.addEventListener('change', () => {
-    const checkType = checkTypeSelect.value;
-    if (checkType === 'webApp') {
-        webAppUrlInput.style.display = 'block';
-        apiUrlInput.style.display = 'none';
-    } else if (checkType === 'api') {
-        apiUrlInput.style.display = 'block';
-        webAppUrlInput.style.display = 'none';
-    }
-});
-
-// Event listener for the "Check Status" button
-checkStatusBtn.addEventListener('click', startStatusCheck);
 
         let intervalId;
         let totalOnlineRuns = 0;
@@ -100,8 +80,7 @@ checkStatusBtn.addEventListener('click', startStatusCheck);
 
         function startStatusCheck() {
          const checkType = checkTypeSelect.value;
-     const url = checkType === 'webApp' ? webAppUrlInput.value : apiUrlInput.value;
-            const intervalMinutes = parseInt(intervalInput.value);
+   const intervalMinutes = parseInt(intervalInput.value);
 
             if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
                 statusElement.textContent = 'Please enter a valid interval';
