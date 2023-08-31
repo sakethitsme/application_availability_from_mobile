@@ -116,6 +116,11 @@ getStatus(apiUrl); // Monitor the API as well
 
 async function getStatus(urlOrIp) {
     try {
+        // Avoid fetching if the input is empty
+        if (!urlOrIp.trim()) {
+            return;
+        }
+
         // Use the proxy URL for making requests to external APIs
         const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
         const startTime = performance.now();
