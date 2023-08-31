@@ -115,7 +115,6 @@ getStatus(apiUrl); // Monitor the API as well
         }
 
 async function getStatus(urlOrIp) {
-    let responseTime; // Declare responseTime outside the try block
     try {
         // Use the proxy URL for making requests to external APIs
         const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
@@ -126,10 +125,10 @@ async function getStatus(urlOrIp) {
         if (urlOrIp.includes('api')) { // Check if the input contains 'api' to identify API endpoints
             const data = await response.json(); // Assuming API response is JSON
             // Process API response data, update UI, etc.
-        } else {
+        } else {                
             const endTime = performance.now();
             const status = response.ok ? 'Online' : 'Offline';
-            responseTime = endTime - startTime; // Update responseTime value
+            const responseTime = endTime - startTime;
 
             if (response.ok) {
                 totalOnlineRuns++;
