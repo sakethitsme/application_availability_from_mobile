@@ -76,6 +76,17 @@ const checkStatusBtn = document.getElementById('checkStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
 
+checkTypeSelect.addEventListener('change', () => {
+    const checkType = checkTypeSelect.value;
+    if (checkType === 'webApp') {
+        webAppUrlInput.style.display = 'block';
+        apiUrlInput.style.display = 'none';
+    } else if (checkType === 'api') {
+        apiUrlInput.style.display = 'block';
+        webAppUrlInput.style.display = 'none';
+    }
+});
+
 // Event listener for the "Check Status" button
 checkStatusBtn.addEventListener('click', startStatusCheck);
 
