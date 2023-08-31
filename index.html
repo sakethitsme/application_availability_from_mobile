@@ -40,10 +40,8 @@
 <body>
     <div class="container">
         <h1>Sentinel</h1>
- 
-
         <p>Enter your URL:</p>
-<input type="text" id="urlInput" placeholder="Enter URL">
+        <input type="text" id="webAppUrl" placeholder="https://your-web-app.com">
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -63,12 +61,10 @@
         const statusElement = document.getElementById('status');
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
-const urlInput = document.getElementById('urlInput');       
-const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const webAppUrlInput = document.getElementById('webAppUrl');
+        const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
-
-
 
         let intervalId;
         let totalOnlineRuns = 0;
@@ -79,8 +75,8 @@ const checkStatusBtn = document.getElementById('checkStatusBtn');
         stopStatusBtn.addEventListener('click', stopStatusCheck);
 
         function startStatusCheck() {
-         const checkType = checkTypeSelect.value;
-   const intervalMinutes = parseInt(intervalInput.value);
+            const webAppUrl = webAppUrlInput.value;
+            const intervalMinutes = parseInt(intervalInput.value);
 
             if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
                 statusElement.textContent = 'Please enter a valid interval';
@@ -112,10 +108,10 @@ const checkStatusBtn = document.getElementById('checkStatusBtn');
             }
         }
 
-        async function getStatus(url) {
+        async function getStatus(webAppUrl) {
             try {
                 // Use the proxy URL for making requests to external APIs
-                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(url);
+                const proxyUrl = '/api/proxy?url=' + encodeURIComponent(webAppUrl);
                 const startTime = performance.now();
                 const response = await fetch(proxyUrl);
                 const endTime = performance.now();
