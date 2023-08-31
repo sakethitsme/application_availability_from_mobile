@@ -42,6 +42,8 @@
         <h1>Sentinel</h1>
         <p>Enter your web app URL or IP:</p>
         <input type="text" id="urlOrIpInput" placeholder="https://your-web-app.com or IP address">
+<p>Enter your API endpoint URL:</p>
+    <input type="text" id="apiUrlInput" placeholder="https://your-api-endpoint.com">
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -62,7 +64,8 @@
         const averageAvailabilityElement = document.getElementById('averageAvailability');
         const availabilitySinceElement = document.getElementById('availabilitySince');
 const urlOrIpInput = document.getElementById('urlOrIpInput');
-        const checkStatusBtn = document.getElementById('checkStatusBtn');
+const apiUrlInput = document.getElementById('apiUrlInput');        
+const checkStatusBtn = document.getElementById('checkStatusBtn');
         const stopStatusBtn = document.getElementById('stopStatusBtn');
         const intervalInput = document.getElementById('intervalInput');
 
@@ -76,7 +79,8 @@ const urlOrIpInput = document.getElementById('urlOrIpInput');
 
         function startStatusCheck() {
     const urlOrIp = urlOrIpInput.value;
-            const intervalMinutes = parseInt(intervalInput.value);
+const apiUrl = apiUrlInput.value; // Get the API URL from the input field            
+const intervalMinutes = parseInt(intervalInput.value);
 
             if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
                 statusElement.textContent = 'Please enter a valid interval';
@@ -91,9 +95,11 @@ const urlOrIpInput = document.getElementById('urlOrIpInput');
             }
 
             getStatus(urlOrIp);
+getStatus(apiUrl); // Monitor the API as well
     intervalId = setInterval(() => {
         getStatus(urlOrIp);
-            }, intervalMilliseconds);
+getStatus(apiUrl); // Monitor the API as well            
+}, intervalMilliseconds);
         }
 
         function stopStatusCheck() {
@@ -114,10 +120,15 @@ const urlOrIpInput = document.getElementById('urlOrIpInput');
                 const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
                 const startTime = performance.now();
                 const response = await fetch(proxyUrl);
-                const endTime = performance.now();
+// Handle response differently based on whether it's an API or a URL/IP
+        if (urlOrIp.includes('api')) { // Check if the input contains 'api' to identify API endpoints
+            const data = await response.json(); // Assuming API response is JSON
+            // Process API response data, update UI, etc.
+        } else {                
+const endTime = performance.now();
                 const status = response.ok ? 'Online' : 'Offline';
                 const responseTime = endTime - startTime;
-
+ }
                 if (response.ok) {
                     totalOnlineRuns++;
                 }
@@ -135,18 +146,31 @@ const urlOrIpInput = document.getElementById('urlOrIpInput');
                 } else {
                     statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
                 }
-            } catch (error) {
-                statusElement.textContent = 'Error fetching status';
-                console.error('Error fetching status:', error);
-// Show a notification on error
-            if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification('Status Update Error', {
-                    body: 'There was an error fetching the status. Check the console for details.',
-                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
-                });
-            }
+} catch (error) {
+    if (urlOrIp.includes('api')) {
+        // Handle API error differently
+        statusElement.textContent = 'Error fetching API status';
+        console.error('Error fetching API status:', error);
+        // Show a notification on error
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const notification = new Notification('API Status Update Error', {
+                body: 'There was an error fetching the API status. Check the console for details.',
+                icon: '/node_modules/error.png' // Replace with the path to your notification icon
+            });
         }
+    } else {
+        // Handle URL/IP error differently
+        statusElement.textContent = 'Error fetching status';
+        console.error('Error fetching status:', error);
+        // Show a notification on error
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const notification = new Notification('Status Update Error', {
+                body: 'There was an error fetching the status. Check the console for details.',
+                icon: '/node_modules/error.png' // Replace with the path to your notification icon
+            });
         }
+    }
+}
 
     </script>
 </body>
