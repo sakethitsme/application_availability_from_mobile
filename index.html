@@ -40,12 +40,12 @@
 <body>
     <div class="container">
         <h1>SenOmni</h1>
- <h6>Vigilant Guardian of Online Services</h6>
+        <h6>Vigilant Guardian of Online Services</h6>
         <p>Enter your web app URL or IP:</p>
         <input type="text" id="urlOrIpInput" placeholder="https://your-web-app.com or IP address">
-<p>Enter your API endpoint URL:</p>
-    <input type="text" id="apiUrlInput" placeholder="https://your-api-endpoint.com">
-<p><em>Note: Leave one of the fields empty to monitor only one type. If both fields are filled, the results will be averaged.</em></p>
+        <p>Enter your API endpoint URL:</p>
+        <input type="text" id="apiUrlInput" placeholder="https://your-api-endpoint.com">
+        <p><em>Note: Leave one of the fields empty to monitor only one type. If both fields are filled, the results will be averaged.</em></p>
         <p>Enter status check interval (minutes):</p>
         <input type="number" id="intervalInput" placeholder="1">
         <button id="checkStatusBtn">Check Status</button>
@@ -53,6 +53,14 @@
         <p id="status">Status will be displayed here</p>
         <p id="averageAvailability">Average Availability: N/A</p>
         <p id="availabilitySince">Availability calculated since: N/A</p>
+
+        <!-- "Send Results to External Repo" section -->
+        <p id="sendToWebhookLabel">Do you want to send these results to an external repository?</p>
+        <input type="text" id="serviceNameInput" placeholder="Enter Service Name">
+        <input type="text" id="webhookUrlInput" placeholder="Enter Webhook URL">
+        <button id="sendToWebhookBtn">Submit</button>
+        <p id="webhookStatus">Webhook status: Not configured</p>
+
         <p class="created-by">Created by Siva Saketh Vajramshetty</p>
         <p class="watermark">Sentinel Saketh</p>
     </div>
@@ -62,125 +70,164 @@
     if ('Notification' in window && Notification.permission !== 'granted') {
         Notification.requestPermission();
     }
-        const statusElement = document.getElementById('status');
-        const averageAvailabilityElement = document.getElementById('averageAvailability');
-        const availabilitySinceElement = document.getElementById('availabilitySince');
-const urlOrIpInput = document.getElementById('urlOrIpInput');
-const apiUrlInput = document.getElementById('apiUrlInput');        
-const checkStatusBtn = document.getElementById('checkStatusBtn');
-        const stopStatusBtn = document.getElementById('stopStatusBtn');
-        const intervalInput = document.getElementById('intervalInput');
+    
+    const statusElement = document.getElementById('status');
+    const averageAvailabilityElement = document.getElementById('averageAvailability');
+    const availabilitySinceElement = document.getElementById('availabilitySince');
+    const urlOrIpInput = document.getElementById('urlOrIpInput');
+    const apiUrlInput = document.getElementById('apiUrlInput');        
+    const checkStatusBtn = document.getElementById('checkStatusBtn');
+    const stopStatusBtn = document.getElementById('stopStatusBtn');
+    const intervalInput = document.getElementById('intervalInput');
+    const serviceNameInput = document.getElementById('serviceNameInput');
+    const webhookUrlInput = document.getElementById('webhookUrlInput');
+    const sendToWebhookBtn = document.getElementById('sendToWebhookBtn');
+    const webhookStatus = document.getElementById('webhookStatus');
 
-        let intervalId;
-        let totalOnlineRuns = 0;
-        let totalRuns = 0;
-        let availabilitySinceTime = null;
+    let intervalId;
+    let totalOnlineRuns = 0;
+    let totalRuns = 0;
+    let availabilitySinceTime = null;
 
-        checkStatusBtn.addEventListener('click', startStatusCheck);
-        stopStatusBtn.addEventListener('click', stopStatusCheck);
+    checkStatusBtn.addEventListener('click', startStatusCheck);
+    stopStatusBtn.addEventListener('click', stopStatusCheck);
+    sendToWebhookBtn.addEventListener('click', sendResultsToWebhook);
 
-        function startStatusCheck() {
-    const urlOrIp = urlOrIpInput.value;
-const apiUrl = apiUrlInput.value; // Get the API URL from the input field            
-const intervalMinutes = parseInt(intervalInput.value);
+    function startStatusCheck() {
+        const urlOrIp = urlOrIpInput.value;
+        const apiUrl = apiUrlInput.value; // Get the API URL from the input field            
+        const intervalMinutes = parseInt(intervalInput.value);
 
-            if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
-                statusElement.textContent = 'Please enter a valid interval';
-                return;
-            }
-
-            const intervalMilliseconds = intervalMinutes * 60000;
-
-            if (!availabilitySinceTime) {
-                availabilitySinceTime = new Date();
-                updateAvailabilitySince();
-            }
-
-            getStatus(urlOrIp);
-getStatus(apiUrl); // Monitor the API as well
-    intervalId = setInterval(() => {
-        getStatus(urlOrIp);
-getStatus(apiUrl); // Monitor the API as well            
-}, intervalMilliseconds);
-        }
-
-        function stopStatusCheck() {
-            clearInterval(intervalId);
-            statusElement.textContent = 'Status updates stopped';
-        }
-
-        function updateAvailabilitySince() {
-            if (availabilitySinceTime) {
-                const formattedTime = moment(availabilitySinceTime).format('DD MMMM, YYYY HH:mm:ss');
-                availabilitySinceElement.textContent = `Availability calculated since: ${formattedTime}`;
-            }
-        }
-
-async function getStatus(urlOrIp) {
-    try {
-        // Avoid fetching if the input is empty
-        if (!urlOrIp.trim()) {
+        if (isNaN(intervalMinutes) || intervalMinutes <= 0) {
+            statusElement.textContent = 'Please enter a valid interval';
             return;
         }
 
-        // Use the proxy URL for making requests to external APIs
-        const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
-        const startTime = performance.now();
-        const response = await fetch(proxyUrl);
+        const intervalMilliseconds = intervalMinutes * 60000;
 
-        // Handle response differently based on whether it's an API or a URL/IP
-        if (urlOrIp.includes('api')) { // Check if the input contains 'api' to identify API endpoints
-            const data = await response.json(); // Assuming API response is JSON
-            // Process API response data, update UI, etc.
-        } else {                
-            const endTime = performance.now();
-            const status = response.ok ? 'Online' : 'Offline';
-            const responseTime = endTime - startTime;
-
-            if (response.ok) {
-                totalOnlineRuns++;
-            }
-            totalRuns++;
-
-            const availabilityPercentage = (totalOnlineRuns / totalRuns) * 100;
-            const averageAvailabilityText = isNaN(availabilityPercentage)
-                ? 'Average Availability: N/A'
-                : `Average Availability: ${availabilityPercentage.toFixed(2)}%`;
-
-            averageAvailabilityElement.textContent = averageAvailabilityText;
-
-            if (response.ok) {
-                statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
-            } else {
-                statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
-            }
+        if (!availabilitySinceTime) {
+            availabilitySinceTime = new Date();
+            updateAvailabilitySince();
         }
-    } catch (error) {
-        if (urlOrIp.includes('api')) {
-            // Handle API error differently
-            statusElement.textContent = 'Error fetching API status';
-            console.error('Error fetching API status:', error);
-            // Show a notification on error
-            if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification('API Status Update Error', {
-                    body: 'There was an error fetching the API status. Check the console for details.',
-                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
-                });
+
+        getStatus(urlOrIp);
+        getStatus(apiUrl); // Monitor the API as well
+        intervalId = setInterval(() => {
+            getStatus(urlOrIp);
+            getStatus(apiUrl); // Monitor the API as well            
+        }, intervalMilliseconds);
+    }
+
+    function stopStatusCheck() {
+        clearInterval(intervalId);
+        statusElement.textContent = 'Status updates stopped';
+    }
+
+    function updateAvailabilitySince() {
+        if (availabilitySinceTime) {
+            const formattedTime = moment(availabilitySinceTime).format('DD MMMM, YYYY HH:mm:ss');
+            availabilitySinceElement.textContent = `Availability calculated since: ${formattedTime}`;
+        }
+    }
+
+    async function getStatus(urlOrIp) {
+        try {
+            // Avoid fetching if the input is empty
+            if (!urlOrIp.trim()) {
+                return;
             }
-        } else {
-            // Handle URL/IP error differently
-            statusElement.textContent = 'Error fetching status';
-            console.error('Error fetching status:', error);
-            // Show a notification on error
-            if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification('Status Update Error', {
-                    body: 'There was an error fetching the status. Check the console for details.',
-                    icon: '/node_modules/error.png' // Replace with the path to your notification icon
-                });
+
+            // Use the proxy URL for making requests to external APIs
+            const proxyUrl = '/api/proxy?url=' + encodeURIComponent(urlOrIp);
+            const startTime = performance.now();
+            const response = await fetch(proxyUrl);
+
+            // Handle response differently based on whether it's an API or a URL/IP
+            if (urlOrIp.includes('api')) { // Check if the input contains 'api' to identify API endpoints
+                const data = await response.json(); // Assuming API response is JSON
+                // Process API response data, update UI, etc.
+            } else {                
+                const endTime = performance.now();
+                const status = response.ok ? 'Online' : 'Offline';
+                const responseTime = endTime - startTime;
+
+                if (response.ok) {
+                    totalOnlineRuns++;
+                }
+                totalRuns++;
+
+                const availabilityPercentage = (totalOnlineRuns / totalRuns) * 100;
+                const averageAvailabilityText = isNaN(availabilityPercentage)
+                    ? 'Average Availability: N/A'
+                    : `Average Availability: ${availabilityPercentage.toFixed(2)}%`;
+
+                averageAvailabilityElement.textContent = averageAvailabilityText;
+
+                if (response.ok) {
+                    statusElement.textContent = `Status: ${status} (Response time: ${responseTime.toFixed(2)} ms)`;
+                } else {
+                    statusElement.textContent = `Status: ${status} (Error: ${response.status} - ${response.statusText})`;
+                }
+            }
+        } catch (error) {
+            if (urlOrIp.includes('api')) {
+                // Handle API error differently
+                statusElement.textContent = 'Error fetching API status';
+                console.error('Error fetching API status:', error);
+                // Show a notification on error
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const notification = new Notification('API Status Update Error', {
+                        body: 'There was an error fetching the API status. Check the console for details.',
+                        icon: '/node_modules/error.png' // Replace with the path to your notification icon
+                    });
+                }
+            } else {
+                // Handle URL/IP error differently
+                statusElement.textContent = 'Error fetching status';
+                console.error('Error fetching status:', error);
+                // Show a notification on error
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const notification = new Notification('Status Update Error', {
+                        body: 'There was an error fetching the status. Check the console for details.',
+                        icon: '/node_modules/error.png' // Replace with the path to your notification icon
+                    });
+                }
             }
         }
     }
-}
+
+    async function sendResultsToWebhook() {
+        try {
+            const webhookUrl = webhookUrlInput.value.trim();
+            const serviceName = serviceNameInput.value.trim();
+
+            if (!webhookUrl || !serviceName) {
+                webhookStatus.textContent = 'Please enter both Service Name and Webhook URL';
+                return;
+            }
+
+            // Fetch API to send results to webhook
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    serviceName: serviceName,
+                    averageAvailability: averageAvailabilityElement.textContent,
+                    responseTime: statusElement.textContent.match(/\d+(\.\d+)?/)[0] + ' ms' // Extract response time from status text
+                })
+            });
+
+            if (response.ok) {
+                webhookStatus.textContent = 'Results sent successfully!';
+            } else {
+                webhookStatus.textContent = `Error sending results: ${response.status} - ${response.statusText}`;
+            }
+        } catch (error) {
+            webhookStatus.textContent = 'Error sending results: ' + error.message;
+        }
+    }
     </script>
 </body>
 </html>
